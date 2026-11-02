@@ -1,0 +1,5 @@
+name: __문제 이름__
+limits:
+  time_limit: 1
+  memory: 512
+validation: default

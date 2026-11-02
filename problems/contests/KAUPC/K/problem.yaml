@@ -1,0 +1,5 @@
+name: 간식(hard)
+limits:
+  time_limit: 2
+  memory: 512
+validation: default

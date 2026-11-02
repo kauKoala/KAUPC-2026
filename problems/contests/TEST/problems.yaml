@@ -1,0 +1,41 @@
+- id: apb
+  label: B
+  name: 더하기1
+  color: MediumSeaGreen
+  rgb: '#3CB371'
+
+- id: maxdiff
+  label: D
+  name: 가장 큰 차이
+  color: SteelBlue
+  rgb: '#4682B4'
+- id: codepath
+  label: C1
+  name: 코드로 만든 문제
+  color: Tomato
+  rgb: '#FF6347'
+- id: starprint
+  label: E
+  name: 별 찍기
+  color: HotPink
+  rgb: '#FF69B4'
+- id: starprintqa
+  label: F
+  name: 별 찍기 QA
+  color: Goldenrod
+  rgb: '#DAA520'
+- id: fairopponent
+  label: G
+  name: 적절한 상대 찾기
+  color: MediumPurple
+  rgb: '#9370DB'
+- id: testdelivery1
+  label: J
+  name: 배달왕 피트
+  color: Chocolate
+  rgb: '#D2691E'
+- id: delivery2
+  label: K
+  name: 사장님 피트
+  color: CadetBlue
+  rgb: '#5F9EA0'

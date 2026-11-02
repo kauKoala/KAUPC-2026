@@ -1,0 +1,74 @@
+<article class="problem-statement" aria-labelledby="problem-title">
+  <header class="problem-header">
+    <p class="problem-eyebrow">KAUPC2026 · A</p>
+    <h1 id="problem-title">현수막 출력하기</h1>
+    <dl class="problem-limits" aria-label="문제 제한">
+      <div><dt>시간 제한</dt><dd>1초</dd></div>
+      <div><dt>메모리 제한</dt><dd>512 MB</dd></div>
+    </dl>
+  </header>
+
+  <section aria-labelledby="description-heading">
+    <h2 id="description-heading">문제</h2>
+    <p><code>KAUPC 2026</code> 개막식을 위해 운영진이 다음과 같은 현수막을 준비했다.</p>
+    <pre>KKAAUUPPCC
+KKAAUUPPCC
+KKAAUUPPCC</pre>
+    <p>현수막은 왼쪽부터 <code>K</code>, <code>A</code>, <code>U</code>, <code>P</code>, <code>C</code>가 적힌 다섯 부분으로 나뉜다. 각 부분은 가로 2칸, 세로 3칸이다.</p>
+    <p>개막식 직전, 바람이 불어 현수막이 흔들리기 시작했다. 각 부분은 가로 위치와 모양을 유지한 채 높이가 달라진다. 높이 <code>0</code>은 원래 위치, <code>1</code>은 원래 위치보다 한 칸 위, <code>-1</code>은 한 칸 아래를 뜻한다.</p>
+    <p>운영진이 전광판에 띄울 현수막의 모습을 5행 10열에 출력하여라. 높이 <code>0</code>인 부분은 위에서부터 2~4행에 놓이며, 문자가 없는 칸은 마침표(<code>.</code>)로 채운다.</p>
+  </section>
+
+  <section aria-labelledby="input-heading">
+    <h2 id="input-heading">입력</h2>
+    <p>첫째 줄에 각 부분의 높이를 나타내는 다섯 정수 <code>h<sub>1</sub>, h<sub>2</sub>, h<sub>3</sub>, h<sub>4</sub>, h<sub>5</sub></code>가 공백으로 구분되어 주어진다. 왼쪽부터 <code>K</code>, <code>A</code>, <code>U</code>, <code>P</code>, <code>C</code> 부분에 해당한다.</p>
+  </section>
+
+  <section aria-labelledby="output-heading">
+    <h2 id="output-heading">출력</h2>
+    <p>흔들린 현수막을 정확히 5줄에 걸쳐 출력한다. 각 줄은 문자와 마침표(<code>.</code>)로 이루어진 정확히 10글자다.</p>
+  </section>
+
+  <section aria-labelledby="limits-heading">
+    <h2 id="limits-heading">제한</h2>
+    <ul class="constraint-list">
+      <li><code>h<sub>1</sub> = 0</code></li>
+      <li><code>-1 ≤ h<sub>i</sub> ≤ 1</code> (1 ≤ i ≤ 5)</li>
+      <li><code>|h<sub>i</sub> − h<sub>i+1</sub>| ≤ 1</code> (1 ≤ i &lt; 5)</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="sample-heading">
+    <h2 id="sample-heading">예제</h2>
+    <div class="sample-card">
+      <div class="sample-pane">
+        <div class="sample-label">예제 입력 1</div>
+        <pre data-sample-input>0 1 0 -1 0</pre>
+      </div>
+      <div class="sample-pane">
+        <div class="sample-label">예제 출력 1</div>
+        <pre data-sample-output>..AA......
+KKAAUU..CC
+KKAAUUPPCC
+KK..UUPPCC
+......PP..</pre>
+      </div>
+    </div>
+    <div class="sample-card">
+      <div class="sample-pane">
+        <div class="sample-label">예제 입력 2</div>
+        <pre data-sample-input>0 1 1 1 0</pre>
+      </div>
+      <div class="sample-pane">
+        <div class="sample-label">예제 출력 2</div>
+        <pre data-sample-output>..AAUUPP..
+KKAAUUPPCC
+KKAAUUPPCC
+KK......CC
+..........</pre>
+      </div>
+    </div>
+    <h3>예제 1 설명</h3>
+    <p><code>A</code> 부분의 높이는 <code>1</code>, <code>P</code> 부분의 높이는 <code>-1</code>이며 나머지는 <code>0</code>이다.</p>
+  </section>
+</article>

@@ -1,0 +1,38 @@
+# 클라우드 배포용 덮어쓰기. 로컬 개발과 다른 점만 담는다.
+#   docker compose -f docker-compose.yml -f docker-compose.cloud.yml up -d
+services:
+  domserver:
+    # 참가자는 caddy(80/443)를 거쳐 들어온다. domserver는 밖으로 열지 않는다.
+    ports: !override []
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      - domserver
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/aws/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+  judgehost:
+    restart: unless-stopped
+
+  mariadb:
+    restart: unless-stopped
+
+  problem-editor:
+    # 에디터는 DOMjudge와 같은 주소의 /authoring/ 아래에 붙는다.
+    # 포트를 밖으로 열지 않는다. 로그인 확인은 nginx가 DOMjudge에 물어본다.
+    environment:
+      BASE_PATH: /authoring
+    ports: !override []
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,22 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 저장소와 문제 패키지 테스트
+        run: |
+          python -m unittest discover tests -v
+          for test_dir in problems/contests/*/*/tests; do
+            [ -d "$test_dir" ] || continue
+            python -m unittest discover "$test_dir" -v
+          done

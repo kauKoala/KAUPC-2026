@@ -1,0 +1,7 @@
+.env
+**/build/
+dist/
+__pycache__/
+
+# 배포 키 등 비밀값
+secrets/

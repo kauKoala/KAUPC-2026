@@ -1,0 +1,11 @@
+problems/** text eol=lf
+bootstrap/*.sh text eol=lf
+# 그림은 줄바꿈 변환을 하면 PNG 헤더의 \r\n이 \n으로 바뀌어 깨진다.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary

@@ -1,0 +1,5 @@
+name: 다리 추가하기
+limits:
+  time_limit: 5
+  memory: 1024
+validation: default

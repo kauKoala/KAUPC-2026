@@ -1,0 +1,5 @@
+name: 사장님 피트
+limits:
+  time_limit: 2
+  memory: 256
+validation: default

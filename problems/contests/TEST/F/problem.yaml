@@ -1,0 +1,5 @@
+name: 별 찍기 QA
+limits:
+  time_limit: 1
+  memory: 512
+validation: default

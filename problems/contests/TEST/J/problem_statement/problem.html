@@ -1,0 +1,82 @@
+<article class="problem-statement" aria-labelledby="problem-title">
+  <header class="problem-header">
+    <p class="problem-eyebrow">KAUPC2026 TEST · J</p>
+    <h1 id="problem-title">배달왕 피트</h1>
+    <dl class="problem-limits" aria-label="문제 제한">
+      <div><dt>시간 제한</dt><dd>1초</dd></div>
+      <div><dt>메모리 제한</dt><dd>256 MB</dd></div>
+    </dl>
+  </header>
+
+  <section aria-labelledby="description-heading">
+    <h2 id="description-heading">문제</h2>
+    <p>배달기사 피트는 오늘 하루 근무를 시작하려 한다. 근무는 시각 0에 시작하며, 총 T분 동안 일할 수 있다.</p>
+    <p>오늘 처리해야 할 주문은 총 N개이고, 각 주문은 배달 지역명과 소요 시간 d(분)로 주어진다. 소요 시간에는 조리 대기와 이동 시간이 모두 포함되어 있다.</p>
+    <p>피트는 다음 규칙에 따라 배달한다.</p>
+    <p>- 주문은 원하는 순서대로 자유롭게 골라 처리할 수 있다.       - 한 번에 하나의 주문만 처리할 수 있으며, 한 주문을 시작하면 중간에 멈출 수 없다.    - 한 주문을 끝내면 쉬는 시간 없이 곧바로 다음 주문을 시작한다.       - 어떤 주문의 완료 시각이 T를 넘기면 안 된다. 정확히 T에 끝나는 것은 허용된다.</p>
+    <p>피트가 완료할 수 있는 주문의 최대 개수와, 그때 실제로 배달에 사용한 총 시간을 구하는 프로그램을 작성하시오. 완료 개수가 최대인 방법이 여러 가지라면, 그중 총 사용 시간이 가장 짧은 경우를 답으로 한다.</p>
+  </section>
+
+  <section aria-labelledby="input-heading">
+    <h2 id="input-heading">입력</h2>
+    <p>첫째 줄에 주문의 개수 N과 근무 가능 시간 T가 공백으로 구분되어 주어진다.    둘째 줄부터 N개의 줄에 걸쳐 각 주문의 배달 지역명과 소요 시간 d가 공백으로 구분되어 주어진다.</p>
+  </section>
+
+  <section aria-labelledby="output-heading">
+    <h2 id="output-heading">출력</h2>
+    <p>첫째 줄에 피트가 완료할 수 있는 주문의 최대 개수와, 그때 배달에 사용한 총 시간을 공백으로 구분하여 출력한다.    완료할 수 있는 주문이 하나도 없다면 0 0을 출력한다.</p>
+  </section>
+
+  <section aria-labelledby="limits-heading">
+    <h2 id="limits-heading">제한</h2>
+    <ul class="constraint-list">
+      <li><code>1 ≤ N ≤ 100,000</code></li>
+      <li><code>1 ≤ T ≤ 1,000,000,000</code></li>
+      <li><code>1 ≤ d ≤ 10,000</code></li>
+      <li>지역명은 알파벳 소문자로만 이루어진 길이 1 이상 20 이하의 문자열이다.</li>
+      <li>서로 다른 주문의 지역명이 같을 수 있다.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="sample-heading">
+    <h2 id="sample-heading">예제</h2>
+    <div class="sample-card">
+      <div class="sample-pane">
+        <div class="sample-label">예제 입력 1</div>
+        <pre data-sample-input>5 10
+gangnam 4
+mapo 2
+jongno 5
+songpa 3
+yongsan 6</pre>
+      </div>
+      <div class="sample-pane">
+        <div class="sample-label">예제 출력 1</div>
+        <pre data-sample-output>3 9</pre>
+      </div>
+    </div>
+    <div class="sample-card">
+      <div class="sample-pane">
+        <div class="sample-label">예제 입력 2</div>
+        <pre data-sample-input>2 3
+mapo 5
+jongno 7</pre>
+      </div>
+      <div class="sample-pane">
+        <div class="sample-label">예제 출력 2</div>
+        <pre data-sample-output>0 0</pre>
+      </div>
+    </div>
+    <div class="sample-card">
+      <div class="sample-pane">
+        <div class="sample-label">예제 입력 3</div>
+        <pre data-sample-input>1 7
+mapo 7</pre>
+      </div>
+      <div class="sample-pane">
+        <div class="sample-label">예제 출력 3</div>
+        <pre data-sample-output>1 7</pre>
+      </div>
+    </div>
+  </section>
+</article>

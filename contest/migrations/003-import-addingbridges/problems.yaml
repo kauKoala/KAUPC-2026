@@ -1,0 +1,5 @@
+- id: addingbridges
+  label: X
+  name: 다리 추가하기
+  color: SteelBlue
+  rgb: '#4682B4'

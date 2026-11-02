@@ -1,0 +1,103 @@
+name: deploy
+
+# 푸시하면 서버가 같은 커밋을 받는다.
+#
+# 문제 파일만 바뀐 경우와 나머지를 갈라 둔다. 웹 에디터로 문제를 고칠 때마다 커밋이 올라오는데,
+# 그때마다 스택을 다시 올리면 대회 중에 채점기가 재시작된다.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  # 스택 구성이 바뀌었을 때만 다시 올린다.
+  stack:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit != null
+    runs-on: ubuntu-latest
+    outputs:
+      touched: ${{ steps.what.outputs.touched }}
+      needs_provisioner: ${{ steps.what.outputs.needs_provisioner }}
+      needs_caddy: ${{ steps.what.outputs.needs_caddy }}
+      needs_editor: ${{ steps.what.outputs.needs_editor }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 무엇이 바뀌었는지 본다
+        id: what
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "touched=stack" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # 한 번에 여러 커밋이 올라오거나 병합 커밋이면 HEAD^만 보면 앞 커밋의 변경을 놓친다.
+          before="${{ github.event.before }}"
+          if [ -n "$before" ] && [ "$before" != 0000000000000000000000000000000000000000 ] && git cat-file -e "$before^{commit}" 2>/dev/null; then
+            changed=$(git diff --name-only "$before" HEAD || true)
+          else
+            changed=$(git diff --name-only HEAD^ HEAD || true)
+          fi
+          if echo "$changed" | grep -qvE '^(problems/|bootstrap/provision\.sh$|custom/(js|css|static)/|deploy/aws/Caddyfile$|tools/problem-editor/|tests/|\.github/workflows/[^/]+\.yml$)'; then
+            echo "touched=stack" >> "$GITHUB_OUTPUT"
+          else
+            echo "touched=targeted" >> "$GITHUB_OUTPUT"
+          fi
+          echo "needs_provisioner=$(echo "$changed" | grep -qE '^(problems/|bootstrap/provision\.sh$)' && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "needs_caddy=$(echo "$changed" | grep -q '^deploy/aws/Caddyfile$' && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "needs_editor=$(echo "$changed" | grep -q '^tools/problem-editor/' && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "$changed"
+
+      - name: SSH 키 준비
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: 배포 스크립트 전송
+        if: steps.what.outputs.touched == 'stack'
+        run: |
+          scp -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+            deploy/aws/setup.sh \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/setup.sh"
+
+      - name: 스택 다시 올리기
+        if: steps.what.outputs.touched == 'stack'
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "REPO_BRANCH=${GITHUB_REF_NAME} bash setup.sh"
+
+      # 서버 저장소는 문제 에디터도 함께 쓴다. 에디터가 아직 못 올린 커밋이 있을 수 있어
+      # fast-forward 대신 rebase로 받고, 남은 커밋은 원격에 올린다.
+      # 에디터가 파일을 쓰는 도중에 받으면 실패할 수 있어 5초 간격으로 세 번까지 다시 받는다.
+      # 참가자 화면·문제·에디터만 바뀌었으면 필요한 서비스만 갱신한다.
+      # judgehost와 domserver는 멈추지 않아 채점 중인 제출을 잃지 않는다.
+      - name: 대상 서비스만 반영하기
+        if: steps.what.outputs.touched == 'targeted'
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "cd oj-domjudge \
+             && sudo chown -R \$USER:\$USER . \
+             && export GIT_SSH_COMMAND='ssh -i ~/.ssh_deploy_key -o IdentitiesOnly=yes' \
+             && { pulled=; for attempt in 1 2 3; do \
+                    git -c user.name='kaupc deploy' -c user.email=deploy@localhost pull --quiet --rebase --autostash origin ${GITHUB_REF_NAME} && { pulled=1; break; }; \
+                    git rebase --abort 2>/dev/null; sleep 5; \
+                  done; \
+                  [ -n \"\$pulled\" ] || { echo '문제 에디터 커밋과 원격이 충돌한다. 서버에서 직접 풀어야 한다.'; exit 1; }; } \
+             && if [ -n \"\$(git log --oneline origin/${GITHUB_REF_NAME}..HEAD)\" ]; then git push --quiet origin HEAD:${GITHUB_REF_NAME}; fi \
+             && if [ '${{ steps.what.outputs.needs_provisioner }}' = true ]; then sudo bash scripts/run-provision.sh; fi \
+             && if [ '${{ steps.what.outputs.needs_editor }}' = true ]; then sudo docker compose up -d --build problem-editor && sudo docker builder prune -af >/dev/null && sudo docker image prune -f >/dev/null; fi \
+             && if [ '${{ steps.what.outputs.needs_caddy }}' = true ]; then sudo docker compose restart caddy; fi"
+
+      - name: 상태 확인
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "cd oj-domjudge && sudo docker compose ps --format '{{.Service}} {{.Status}}'"

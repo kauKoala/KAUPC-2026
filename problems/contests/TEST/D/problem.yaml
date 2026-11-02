@@ -1,0 +1,5 @@
+name: 가장 큰 차이
+limits:
+  time_limit: 1
+  memory: 512
+validation: default

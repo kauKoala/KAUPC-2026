@@ -1,0 +1,126 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-domjudge_root}
+      MYSQL_USER: domjudge
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-domjudge_pw}
+      MYSQL_DATABASE: domjudge
+    command: --max-connections=1000 --max-allowed-packet=512M
+    volumes:
+      - dj_mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  domserver:
+    image: domjudge/domserver:latest
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mariadb
+      MYSQL_USER: domjudge
+      MYSQL_DATABASE: domjudge
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-domjudge_pw}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-domjudge_root}
+      CONTAINER_TIMEZONE: Asia/Seoul
+    ports:
+      - "${DOMJUDGE_PORT:-12345}:80"
+    volumes:
+      - dj_domserver_etc:/opt/domjudge/domserver/etc
+      # 파일 하나만 붙이면 git pull로 파일이 바뀔 때 컨테이너가 옛 내용을 계속 본다.
+      # 폴더째 붙여야 갱신이 그대로 보인다.
+      - ./custom/nginx:/etc/nginx/sites-enabled:ro
+      - ./custom/js:/opt/domjudge/domserver/webapp/public/js/custom
+      - ./custom/css:/opt/domjudge/domserver/webapp/public/css/custom
+      - ./custom/static/guide:/opt/domjudge/domserver/webapp/public/guide
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/api/v4"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+
+  judgehost:
+    image: domjudge/judgehost:latest
+    entrypoint: ["/bin/sh", "/bootstrap/start-judgehost.sh"]
+    restart: unless-stopped
+    depends_on:
+      domserver:
+        condition: service_healthy
+    privileged: true
+    cgroup: host
+    environment:
+      DOMSERVER_BASEURL: http://domserver/
+      JUDGEDAEMON_USERNAME: judgehost
+      DAEMON_ID: "0"
+      CONTAINER_TIMEZONE: Asia/Seoul
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - dj_chroot0:/chroot
+      - dj_domserver_etc:/opt/domjudge/domserver/etc:ro
+      - ./bootstrap:/bootstrap:ro
+    deploy:
+      replicas: 1
+
+  provisioner:
+    image: domjudge/domserver:latest
+    depends_on:
+      domserver:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/bootstrap/provision.sh"]
+    environment:
+      MYSQL_HOST: mariadb
+      MYSQL_USER: domjudge
+      MYSQL_DATABASE: domjudge
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-domjudge_pw}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-domjudge_root}
+      CONTAINER_TIMEZONE: Asia/Seoul
+    volumes:
+      - dj_domserver_etc:/opt/domjudge/domserver/etc:ro
+      - ./bootstrap:/bootstrap:ro
+      - ./problems/contests:/contest-data:ro
+      - dj_provision_state:/state
+    restart: "no"
+
+  problem-editor:
+    build: ./tools/problem-editor
+    environment:
+      PROBLEM_REPO_ROOT: /repo
+      BASE_PATH: ${EDITOR_BASE_PATH:-}
+      GIT_AUTHOR_NAME: ${GIT_AUTHOR_NAME:-problem editor}
+      GIT_AUTHOR_EMAIL: ${GIT_AUTHOR_EMAIL:-editor@localhost}
+      GIT_COMMITTER_NAME: ${GIT_AUTHOR_NAME:-problem editor}
+      GIT_COMMITTER_EMAIL: ${GIT_AUTHOR_EMAIL:-editor@localhost}
+      # 저장소 배포 키로 푸시한다. 키가 없으면 커밋만 하고 푸시는 건너뛴다.
+      GIT_SSH_KEY: /root/.ssh/editor_key
+      GIT_BRANCH: ${GIT_BRANCH:-master}
+      # 공개 대회에서 로그인 없이 제출할 수 있게 게스트 계정을 만들어 준다. 0이면 끈다.
+      GUEST_SIGNUP: ${GUEST_SIGNUP:-1}
+      # 채점 현황에서 테스트 입출력과 컴파일 결과를 읽는다.
+      MYSQL_HOST: mariadb
+      MYSQL_USER: domjudge
+      MYSQL_DATABASE: domjudge
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-domjudge_pw}
+    volumes:
+      # 저장소 전체를 붙인다. 에디터가 파일을 고치고 그 자리에서 커밋한다.
+      - .:/repo
+      - ./tools/problem-editor/app.py:/app/app.py:ro
+      - ./secrets/editor_deploy_key:/run/secrets/editor_deploy_key:ro
+      # "채점 시스템에 반영"을 누르면 provisioner 컨테이너를 다시 돌린다.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # 참가자 이름을 저장할 때 DOMjudge 관리자 API를 부른다. 관리자 비밀번호만 읽는다.
+      - dj_domserver_etc:/domjudge-etc:ro
+    ports:
+      - "127.0.0.1:8088:8088"
+    restart: unless-stopped
+
+volumes:
+  dj_mariadb_data:
+  dj_provision_state:
+  dj_domserver_etc:
+  dj_chroot0:

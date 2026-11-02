@@ -1,0 +1,94 @@
+<article class="problem-statement" aria-labelledby="problem-title">
+  <header class="problem-header">
+    <p class="problem-eyebrow">KAUPC2026 TEST · K</p>
+    <h1 id="problem-title">사장님 피트</h1>
+    <dl class="problem-limits" aria-label="문제 제한">
+      <div><dt>시간 제한</dt><dd>2초</dd></div>
+      <div><dt>메모리 제한</dt><dd>256 MB</dd></div>
+    </dl>
+  </header>
+
+  <section aria-labelledby="description-heading">
+    <h2 id="description-heading">문제</h2>
+    <p>배달 대행업체를 운영하는 피트는 오늘 배달기사 두 명을 배치하기로 했다. 두 기사 모두 시각 0에 근무를 시작하며, 1번 기사는 T1분, 2번 기사는 T2분 동안 일할 수 있다.</p>
+    <p>오늘 들어온 주문은 총 N개이고, 각 주문은 배달 지역명과 소요 시간 d(분)로 주어진다. 소요 시간은 어느 기사가 맡든 동일하다.</p>
+    <p>주문 배정 규칙은 다음과 같다.</p>
+    <p>- 각 주문은 최대 한 명의 기사에게만 배정할 수 있다. 한 주문을 두 기사가 나눠서 처리할 수는 없다.</p>
+    <p>- 처리하지 않고 넘기는 주문이 있어도 된다.</p>
+    <p>- 각 기사는 자신에게 배정된 주문을 원하는 순서대로 하나씩 처리하며, 쉬는 시간 없이 이어서 처리한다.</p>
+    <p>- 1번 기사가 배정받은 주문의 소요 시간 합은 T1을, 2번 기사는 T2를 넘길 수 없다. 정확히 같아지는 것은 허용된다.</p>
+    <p>- 두 기사는 서로 독립적으로 일하며, 한 명에게 주문을 몰아주거나 한 명이 아무 주문도 받지 않아도 된다.</p>
+    <p>두 기사가 완료할 수 있는 주문의 최대 개수와, 그때 완료한 주문들의 소요 시간 합을 구하는 프로그램을 작성하시오. 완료 개수가 최대인 배정이 여러 가지라면, 그중 소요 시간의 합이 가장 작은 경우를 답으로 한다.</p>
+  </section>
+
+  <section aria-labelledby="input-heading">
+    <h2 id="input-heading">입력</h2>
+    <p>첫째 줄에 주문의 개수 N, 1번 기사의 근무 가능 시간 T1, 2번 기사의 근무 가능 시간 T2가 공백으로 구분되어 주어진다.</p>
+    <p>둘째 줄부터 N개의 줄에 걸쳐 각 주문의 배달 지역명과 소요 시간 d가 공백으로 구분되어 주어진다.</p>
+  </section>
+
+  <section aria-labelledby="output-heading">
+    <h2 id="output-heading">출력</h2>
+    <p>첫째 줄에 두 기사가 완료할 수 있는 주문의 최대 개수와, 그때 완료한 주문들의 소요 시간 합을 공백으로 구분하여 출력한다.</p>
+    <p>완료 개수가 최대인 배정이 여러 가지라면, 그중 소요 시간의 합이 가장 작은 경우를 출력한다.</p>
+    <p>완료할 수 있는 주문이 하나도 없다면 0 0을 출력한다.</p>
+  </section>
+
+  <section aria-labelledby="limits-heading">
+    <h2 id="limits-heading">제한</h2>
+    <ul class="constraint-list">
+      <li><code>1 ≤ N ≤ 20</code></li>
+      <li><code>1 ≤ T1, T2 ≤ 10,000</code></li>
+      <li><code>1 ≤ d ≤ 10,000</code></li>
+      <li>T1과 T2의 대소 관계는 정해져 있지 않다.</li>
+      <li>지역명은 알파벳 소문자로만 이루어진 길이 1 이상 20 이하의 문자열이다.</li>
+      <li>서로 다른 주문의 지역명이 같을 수 있다.</li>
+      <li>모든 숫자 입력값은 정수이다.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="sample-heading">
+    <h2 id="sample-heading">예제</h2>
+    <div class="sample-card">
+      <div class="sample-pane">
+        <div class="sample-label">예제 입력 1</div>
+        <pre data-sample-input>4 5 5
+gangnam 3
+mapo 1
+jongno 4
+songpa 2</pre>
+      </div>
+      <div class="sample-pane">
+        <div class="sample-label">예제 출력 1</div>
+        <pre data-sample-output>4 10</pre>
+      </div>
+    </div>
+    <div class="sample-card">
+      <div class="sample-pane">
+        <div class="sample-label">예제 입력 2</div>
+        <pre data-sample-input>5 4 9
+mapo 5
+jongno 4
+gangnam 2
+yongsan 6
+songpa 3</pre>
+      </div>
+      <div class="sample-pane">
+        <div class="sample-label">예제 출력 2</div>
+        <pre data-sample-output>3 9</pre>
+      </div>
+    </div>
+    <div class="sample-card">
+      <div class="sample-pane">
+        <div class="sample-label">예제 입력 3</div>
+        <pre data-sample-input>2 2 3
+mapo 5
+jongno 4</pre>
+      </div>
+      <div class="sample-pane">
+        <div class="sample-label">예제 출력 3</div>
+        <pre data-sample-output>0 0</pre>
+      </div>
+    </div>
+  </section>
+</article>

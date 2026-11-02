@@ -1,0 +1,356 @@
+:root {
+  --kaupc-blue: #0f2c5c;
+  --kaupc-blue-dark: #0a1f42;
+  --kaupc-ink: #22262b;
+  --kaupc-muted: #68707b;
+  --kaupc-line: #e3e8ee;
+  --kaupc-panel: #ffffff;
+  --kaupc-code: #f6f8fa;
+  /* 참가자 화면의 탭·제목·본문 상자는 모두 이 폭 하나를 쓴다 */
+  --kaupc-page-width: min(1080px, calc(100% - 2rem));
+}
+
+body.kaupc-jury .jury-shortcuts { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1rem; margin:1.5rem 0; }
+body.kaupc-jury .jury-shortcuts a { padding:1.4rem; border:1px solid var(--kaupc-line); border-radius:10px; background:#fff; color:var(--kaupc-blue); font-weight:700; text-decoration:none; }
+body.kaupc-jury .jury-shortcuts a:hover { background:#f1f5fb; border-color:var(--kaupc-blue); }
+body.kaupc-jury .jury-advanced { margin:2rem 0; padding:1rem; border:1px solid var(--kaupc-line); border-radius:8px; }
+body.kaupc-jury .jury-advanced summary { cursor:pointer; font-weight:600; }
+body.kaupc-jury .jury-code-first { margin:1.2rem 0 2rem; padding:1.5rem; border:1px solid var(--kaupc-line); border-radius:10px; background:#fff; }
+body.kaupc-jury .jury-code-first h2 { font-size:1.35rem; }
+body.kaupc-jury .jury-code-first h3 { font-size:.95rem; margin-top:1rem; }
+body.kaupc-jury .jury-code-first pre { max-height:55vh; overflow:auto; padding:1rem; background:#f6f8fa; border:1px solid var(--kaupc-line); border-radius:6px; font: .88rem/1.6 ui-monospace,Consolas,monospace; tab-size:4; }
+body.kaupc-jury .jury-live-results { border-top:1px solid var(--kaupc-line); padding-top:1rem; margin-top:1rem; }
+body.kaupc-jury .jury-case-results { display:flex; flex-wrap:wrap; gap:.4rem; margin:.75rem 0; }
+body.kaupc-jury .jury-case-results .badge { font-size:.8rem; padding:.5rem; }
+body.kaupc-jury .jury-case-results .jury-case-badge { width:auto; min-width:0; height:auto; white-space:nowrap; overflow:visible; }
+body.kaupc-jury .jury-workspace-note { color:var(--kaupc-muted); }
+body.kaupc-jury .jury-submission-header { border:0; border-bottom:1px solid var(--kaupc-line); border-radius:0; }
+body.kaupc-jury .jury-submission-header > .card-header { background:white; border:0; padding:1rem 0; }
+body.kaupc-jury .jury-submission-header h1 { display:block !important; font-size:1.6rem; margin:0 0 1rem; }
+body.kaupc-jury .jury-submission-header .submission-summary { display:flex; flex-wrap:wrap; gap:.65rem 1.5rem; font-size:.9rem; margin:1rem 0; }
+body.kaupc-jury .jury-submission-header .submission-summary a { color:var(--kaupc-blue); text-decoration:none; }
+body.kaupc-jury .jury-submission-tools { float:right; font-size:.8rem; color:var(--kaupc-muted); }
+body.kaupc-jury .jury-submission-tools summary { cursor:pointer; }
+body.kaupc-jury .jury-submission-tools[open] > div { padding:.7rem 0; }
+body.kaupc-jury .jury-submission-header + .jury-code-first { padding:1.25rem 0; border:0; border-radius:0; }
+body.kaupc-jury .jury-quick-nav { display:flex; flex-wrap:wrap; gap:1rem; padding:1rem 0; margin-bottom:1rem; border-bottom:1px solid var(--kaupc-line); }
+body.kaupc-jury .jury-quick-nav a { color:var(--kaupc-blue); font-weight:650; text-decoration:none; }
+body.kaupc-jury .submissions-table { width:100%; max-width:none; margin:1rem 0; }
+body.kaupc-jury .submissions-table thead th { background:#f4f7fb; color:var(--kaupc-blue); }
+/* Claim is not used in KAUPC's automatic judging workflow. Applies to AJAX updates too. */
+body.kaupc-jury input[name="claim"], body.kaupc-jury input[name="unclaim"],
+body.kaupc-jury a[href*="?claim="], body.kaupc-jury a[href*="&claim="],
+body.kaupc-jury a[href*="?unclaim="], body.kaupc-jury a[href*="&unclaim="],
+body.kaupc-jury form:has(input[name="forceclaim"]),
+body.kaupc-jury form:has(input[name="claim"]), body.kaupc-jury form:has(input[name="unclaim"]) { display:none !important; }
+body.jury-submissions-page { background:#fff; color:var(--kaupc-ink); }
+body.jury-submissions-page > .container-fluid { max-width:1500px; margin:0 auto; padding:1.5rem clamp(1rem,3vw,2.5rem); }
+body.jury-submissions-page h1 { font-size:1.9rem; font-weight:750; letter-spacing:-.04em; margin:1.25rem 0 .5rem; }
+body.jury-submissions-page .jury-workspace-note { font-size:.9rem; margin-bottom:1.5rem; }
+body.jury-submissions-page .jury-submissions-card { padding:0; border:0; border-radius:0; background:#fff; overflow-x:auto; box-shadow:none; }
+body.jury-submissions-page .jury-submissions-card > div:first-child { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; }
+body.jury-submissions-page .jury-submissions-card > div:first-child > .badge { padding:.6rem .8rem; font-size:.85rem; border-radius:6px; }
+body.jury-submissions-page .submissions-table { border-collapse:separate; border-spacing:0; min-width:800px; font-variant-numeric:tabular-nums; }
+body.jury-submissions-page .submissions-table th { padding:.85rem .75rem; white-space:nowrap; font-size:.8rem; border-bottom:1px solid #dce3ed; }
+body.jury-submissions-page .submissions-table td { padding:.6rem .75rem; border-bottom:1px solid #e5e7eb; vertical-align:middle; font-size:.88rem; }
+body.jury-submissions-page .submissions-table td a:not(.btn) { color:inherit; text-decoration:none; }
+body.jury-submissions-page .submissions-table tbody tr:hover > td { background:#edf4ff !important; }
+body.jury-submissions-page .submissions-table .testcase-results { min-width:150px; max-width:280px; white-space:normal; }
+body.jury-submissions-page .submissions-table .badge-testcase { margin:2px; }
+body.jury-submissions-page .btn-group:has(input[name="viewtype"]) { padding:.3rem; gap:.25rem; background:#e9edf4; border-radius:9px; }
+body.jury-submissions-page .btn-group:has(input[name="viewtype"]) .input-group-text { display:none; }
+body.jury-submissions-page .btn-group:has(input[name="viewtype"]) label { border:0; border-radius:6px !important; padding:.6rem 1.1rem; background:transparent; color:#536174; font-weight:600; }
+body.jury-submissions-page .btn-group:has(input[name="viewtype"]) input:checked + label { background:#fff; color:var(--kaupc-blue); box-shadow:0 1px 4px #102c5c15; }
+body.jury-submissions-page #filter-card { border:1px solid #e0e6ef; border-radius:10px; }
+body.jury-submissions-page #filter-card .card-body { width:100%; }
+body.jury-submissions-page #filter-card form > div { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1rem; }
+body.jury-submissions-page .pagination { margin:1.25rem 0 0; }
+@media(max-width:680px) { body.jury-submissions-page .jury-submissions-card { padding:.75rem; } body.jury-submissions-page .btn-group:has(input[name="viewtype"]) label { padding:.55rem .7rem; } }
+
+.navbar .ml-auto.me-3:has(a[data-ajax-modal]) { display: none; }
+.navbar .ml-auto.me-3:has(#notify_enable) { display: none; }
+.navbar.bg-dark { background-color: var(--kaupc-blue-dark) !important; }
+/* 참가자 화면: 대회 탭·문제 표와 겹치는 상단 메뉴와 제출 버튼은 숨기고 로그아웃·남은 시간만 오른쪽에 둔다 */
+body.participant-nav #menuDefault > .navbar-nav.me-auto,
+body.participant-nav #menuDefault > .ml-auto.me-3 { display: none; }
+body.participant-nav #menuDefault { justify-content: flex-end; }
+
+.contest-lobby { width: var(--kaupc-page-width); margin: 4.5rem auto; padding: 0; color: var(--kaupc-ink); }
+.contest-lobby__header { max-width: 650px; margin-bottom: 2.5rem; }
+.contest-lobby__eyebrow { color: var(--kaupc-blue); font-size: .78rem; font-weight: 800; letter-spacing: .08em; margin-bottom: .5rem; }
+.contest-lobby h1 { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 750; letter-spacing: -.04em; margin: 0 0 .6rem; }
+.contest-lobby__header > p:last-child { color: var(--kaupc-muted); margin: 0; }
+.contest-lobby__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.contest-card { display: flex; min-height: 230px; flex-direction: column; align-items: flex-start; padding: 1.45rem; border: 1px solid var(--kaupc-line); border-radius: 10px; background: var(--kaupc-panel); box-shadow: 0 2px 9px rgba(20, 37, 55, .035); color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.contest-card:hover { color: inherit; border-color: var(--kaupc-blue); box-shadow: 0 12px 26px rgba(15, 44, 92, .12); text-decoration: none; transform: translateY(-2px); }
+.contest-card__status { color: #107a42; font-size: .78rem; font-weight: 700; }
+.contest-card h2 { margin: .65rem 0 .5rem; font-size: 1.4rem; font-weight: 750; letter-spacing: -.025em; }
+.contest-card p { color: var(--kaupc-muted); font-size: .92rem; margin: 0; }
+.contest-card__action { color: var(--kaupc-blue); font-size: .9rem; font-weight: 700; margin-top: auto; padding-top: 1.5rem; }
+
+.contest-tabs { display: flex; gap: 1.5rem; width: var(--kaupc-page-width); margin: 2rem auto 0; padding: 0; border-bottom: 1px solid var(--kaupc-line); }
+.contest-tabs a { border-bottom: 2px solid transparent; color: var(--kaupc-muted); font-size: .95rem; font-weight: 700; padding: .65rem .1rem; text-decoration: none; }
+.contest-tabs a:hover, .contest-tabs a.active { border-bottom-color: var(--kaupc-blue); color: var(--kaupc-blue); text-decoration: none; }
+.problem-table { width: min(1080px, calc(100% - 2rem)); margin: 1.25rem auto; border-collapse: collapse; color: var(--kaupc-ink); }
+.problem-table th { border-bottom: 2px solid var(--kaupc-line); color: var(--kaupc-muted); font-size: .78rem; font-weight: 700; padding: .75rem 1rem; text-align: left; }
+.problem-table td { border-bottom: 1px solid var(--kaupc-line); padding: 1rem; vertical-align: middle; }
+.problem-table tr:hover td { background: #f8fbff; }
+.problem-table td:first-child { color: var(--kaupc-blue); font-weight: 800; width: 90px; }
+.problem-table td:nth-child(3) { color: var(--kaupc-muted); font-size: .88rem; }
+.problem-table__submit { border: 1px solid var(--kaupc-line); border-radius: 5px; color: var(--kaupc-blue); font-size: .85rem; font-weight: 700; padding: .35rem .65rem; text-decoration: none; }
+.problem-table__submit:hover { border-color: var(--kaupc-blue); text-decoration: none; }
+
+.submitform { max-width: 640px; margin: 0 auto 3rem; padding: 0 1.5rem; }
+.submitform h1 { font-size: clamp(1.75rem, 4vw, 2.2rem); font-weight: 750; letter-spacing: -.035em; margin: 2rem 0 2rem; }
+.submitform label { color: var(--kaupc-muted); font-size: .85rem; font-weight: 700; }
+.submitform .form-control, .submitform .form-select { border-color: var(--kaupc-line); border-radius: 6px; }
+.submitform .form-control:focus, .submitform .form-select:focus { border-color: var(--kaupc-blue); box-shadow: 0 0 0 .2rem rgba(15, 44, 92, .15); }
+.submitform button[type="submit"] { border-radius: 6px; font-weight: 700; }
+.nickname-gate { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(10, 31, 66, .55); }
+.nickname-gate__panel { width: min(26rem, 100%); padding: 1.5rem; border-radius: .5rem; background: var(--kaupc-panel); color: var(--kaupc-ink); box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, .25); }
+.nickname-gate__panel h2 { margin: 0 0 .5rem; font-size: 1.2rem; font-weight: 700; }
+.nickname-gate__hint { margin: 0 0 1rem; color: var(--kaupc-muted); font-size: .85rem; }
+.nickname-gate__error { margin: .5rem 0 0; color: #b42318; font-size: .85rem; }
+.nickname-gate__panel .btn { width: 100%; margin-top: 1rem; }
+.paste-submit { margin-top: 1.25rem; }
+.paste-submit textarea { min-height: 18rem; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .875rem; line-height: 1.5; resize: vertical; }
+.paste-submit__hint { color: var(--kaupc-muted); font-size: .8rem; margin: .45rem 0 0; }
+.paste-submit__error { color: #b42318; font-size: .85rem; font-weight: 700; margin: .45rem 0 0; }
+
+#menuDefault .nav-item:has(> a[href="/team/problems"]),
+#menuDefault .nav-item:has(> a[href="/team/scoreboard"]) { display: none; }
+
+.problem-detail__error { margin: 0; padding: 2rem 1.5rem; color: var(--kaupc-muted); text-align: center; }
+
+.sample-pane { position: relative; }
+.sample-copy { position: absolute; top: 0; right: 0; border: 1px solid var(--kaupc-line); border-radius: 5px; background: #fff; color: var(--kaupc-muted); font-size: .78rem; font-weight: 700; padding: .25rem .55rem; }
+.sample-copy:hover { border-color: var(--kaupc-blue); color: var(--kaupc-blue); }
+
+body:has(.contest-tabs) .card { max-width: 1080px; margin: 1.25rem auto 2rem; border: 0; border-radius: 0; box-shadow: none; font-family: inherit; background: none; }
+body:has(.contest-tabs) .card-header { background: none; border: 0; border-bottom: 1px solid var(--kaupc-line); padding: 0 1rem 1.1rem; margin: 0 0 1.25rem; font-family: inherit !important; }
+body:has(.contest-tabs) .card-header span { font-size: clamp(1.5rem, 4vw, 2rem) !important; font-weight: 750 !important; letter-spacing: -.03em; color: var(--kaupc-ink); }
+body:has(.contest-tabs) .card-header .text-md-end { font-size: .85rem; color: var(--kaupc-muted); font-weight: 400 !important; }
+body:has(.contest-tabs) .card-body { padding: 0 1rem; }
+/* 순위표: 행은 참가자, 열은 문제(A, B, C, …)인 전체 폭 표. 머리행은 상단 바와 같은 대회 남색을 쓴다. */
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard { width: max-content; min-width: 100%; max-width: none; margin: 0; border-collapse: separate; border-spacing: 0; border: 1px solid var(--kaupc-line); border-radius: 10px; overflow: hidden; font-size: .95rem; font-variant-numeric: tabular-nums; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard thead tr { background: var(--kaupc-blue-dark) !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard th { position: static; box-shadow: none; font-variant: normal; text-align: center; color: #fff !important; font-size: .8rem; font-weight: 700; letter-spacing: .02em; padding: .8rem .75rem; border: 0; border-right: 1px solid rgba(255, 255, 255, .1); background: var(--kaupc-blue-dark) !important; white-space: nowrap; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard th:last-child { border-right: 0; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard th a { color: #fff !important; text-decoration: none; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .badge.problem-badge { min-width: 2rem; border: 0 !important; border-radius: 0 !important; background: transparent !important; color: #fff !important; font-size: 1.15rem; font-weight: 800; padding: .1rem .3rem; box-shadow: inset 0 -3px 0 rgba(255, 255, 255, .35); }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard th a:hover .badge.problem-badge { box-shadow: inset 0 -3px 0 #fff; }
+/* DOMjudge는 밝은 문제 색(주황·노랑 등)에 검은 글자를 안쪽 span의 인라인 색으로 넣는다. 헤더는 남색 배경이라 모두 흰 글자로 맞춘다. */
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard thead .badge.problem-badge span { color: #fff !important; }
+/* DOMjudge 기본 요약 줄(문제별 정답·오답·채점 대기 수, 첫 정답 시간)은 참가자 순위표에서 뺀다. */
+body:has(.contest-tabs) .scoreboard tr:has(> td.scoresummary) { display: none; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td { padding: .45rem .5rem; border: 0; border-bottom: 1px solid var(--kaupc-line); border-right: 1px solid #f0f3f7; background: #fff !important; vertical-align: middle; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td:last-child { border-right: 0; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard tbody tr:last-child td { border-bottom: 0; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard col { width: auto !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scoreaf { width: 0; padding: 0; border-right: 0; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.no-border { width: 2.5rem; text-align: center; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scorepl, body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scoretn, body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scorenc, body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scorett { white-space: nowrap; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scorepl.rank { width: 4rem; color: var(--kaupc-blue); font-size: 1.1rem; font-weight: 800; text-align: center; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scoretn { min-width: 9rem; max-width: 16rem; padding-left: 1rem; padding-right: 1.25rem; color: var(--kaupc-ink); font-size: 1rem; font-weight: 700; text-align: left; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scorenc { width: 4.5rem; color: var(--kaupc-blue); font-size: 1.15rem; font-weight: 800; text-align: center; background: #f4f7fc !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scorett { width: 5rem; color: var(--kaupc-muted); font-size: .9rem; font-weight: 600; text-align: center; background: #f4f7fc !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard th[data-problem-id], body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_cell { width: 76px; min-width: 76px; padding: .35rem; text-align: center; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_cell a { display: block; padding: 0; text-decoration: none; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_cell > a > div, body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_cell > div { display: flex; width: auto; min-height: 3.4rem; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; font-size: 1.1rem; font-weight: 800; line-height: 1.15; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_cell span { display: block; font-size: .72rem; font-weight: 500; opacity: .85; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_first { background: var(--kaupc-blue) !important; color: #fff !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_correct:not(.score_first) { background: #d9f0de !important; color: #17693a !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_incorrect { background: #fdecea !important; color: #b3261e !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score_pending { background: #e8eef9 !important; color: var(--kaupc-blue) !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard tbody tr:hover td { background: #f6f9fe !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard tbody tr:hover td.scorenc, body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard tbody tr:hover td.scorett { background: #eaf0fa !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard tr.scorethisisme td { background: #fff8db !important; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard tr.scorethisisme td.scoretn { box-shadow: inset 4px 0 0 var(--kaupc-blue); }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard td.scoresummary { color: var(--kaupc-muted); font-size: .8rem; font-weight: 700; text-align: left; padding-left: 1rem; }
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard tbody tr:has(td.scoresummary) td { background: #f8fafc !important; border-top: 2px solid var(--kaupc-line); font-size: .8rem; color: var(--kaupc-muted); }
+body:has(.contest-tabs) table.scorelegend { display: flex; gap: 1.1rem; align-items: center; border: 0; margin: 1rem 0 0; max-width: none; padding: 0; }
+body:has(.contest-tabs) table.scorelegend thead { display: none; }
+body:has(.contest-tabs) table.scorelegend tbody { display: flex; gap: 1.1rem; flex-wrap: wrap; }
+body:has(.contest-tabs) table.scorelegend tr { display: flex; align-items: center; gap: .4rem; }
+body:has(.contest-tabs) table.scorelegend td { border: 0; padding: 0; font-size: .8rem; color: var(--kaupc-muted); }
+body:has(.contest-tabs) table.scorelegend tr { height: auto; border: 0; background: none !important; }
+body:has(.contest-tabs) table.scorelegend td { width: auto; text-align: left; white-space: nowrap; }
+body:has(.contest-tabs) table.scorelegend tr::before { content: ""; width: 12px; height: 12px; border-radius: 3px; background: #fff; border: 1px solid var(--kaupc-line); }
+body:has(.contest-tabs) table.scorelegend tr.score_first::before { background: var(--kaupc-blue); border-color: var(--kaupc-blue); }
+body:has(.contest-tabs) table.scorelegend tr.score_correct:not(.score_first)::before { background: #d9f0de; border-color: #7cc494; }
+body:has(.contest-tabs) table.scorelegend tr.score_incorrect::before { background: #fdecea; border-color: #e57373; }
+body:has(.contest-tabs) table.scorelegend tr.score_pending::before { background: #e8eef9; border-color: #9fb4dc; }
+body:has(.contest-tabs) .dropdown .btn-outline-secondary { border: 1px solid var(--kaupc-line); border-radius: 5px; color: var(--kaupc-blue); font-size: .85rem; font-weight: 700; }
+body:has(.contest-tabs) .dropdown .btn-outline-secondary:hover, body:has(.contest-tabs) .dropdown .btn-outline-secondary:focus { border-color: var(--kaupc-blue); color: var(--kaupc-blue); background: none; box-shadow: none; }
+#teamscoresummary { display: none; }
+.contest-clarifications:not([hidden]) { max-width: 720px; margin: 2rem auto 3rem; padding: 0 1.5rem; }
+.contest-clarifications .nodata { color: var(--kaupc-muted); font-size: .9rem; margin: .25rem 0 1.75rem; }
+.contest-clarifications a[href$="/clarifications/add"] { background: var(--kaupc-blue); border-color: var(--kaupc-blue); border-radius: 8px; font-weight: 700; padding: .6rem 1.1rem; }
+.contest-clarifications a[href$="/clarifications/add"]:hover { background: var(--kaupc-blue-dark); border-color: var(--kaupc-blue-dark); }
+.teamoverview { max-width: 1080px; margin: 2rem auto 0; padding: 0 1rem .45rem; font-size: 1.28rem; font-weight: 750; letter-spacing: -.03em; color: var(--kaupc-ink) !important; background: none !important; border: 0; border-bottom: 2px solid var(--kaupc-blue); border-radius: 0; }
+.contest-clarifications .teamoverview { max-width: none; margin: 0 0 1rem; padding: 0 0 .6rem; }
+.submissions-table { width: min(1080px, calc(100% - 2rem)); margin: 1rem auto 2rem; border-collapse: collapse; color: var(--kaupc-ink); }
+.submissions-table th { border-bottom: 2px solid var(--kaupc-line); color: var(--kaupc-muted); font-size: .78rem; font-weight: 700; padding: .65rem .75rem; text-align: left; }
+.submissions-table td { border-bottom: 1px solid var(--kaupc-line); padding: .75rem; vertical-align: middle; font-size: .9rem; }
+
+/* 질의응답 게시판 */
+.clar-board__toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.clar-board__filters { display: flex; gap: .4rem; flex-wrap: wrap; }
+.clar-board__filter { border: 1px solid var(--kaupc-line); border-radius: 999px; background: #fff; color: var(--kaupc-muted); font-size: .85rem; font-weight: 700; padding: .35rem .85rem; }
+.clar-board__filter:hover { border-color: var(--kaupc-blue); color: var(--kaupc-blue); }
+.clar-board__filter.active { border-color: var(--kaupc-blue); background: var(--kaupc-blue); color: #fff; }
+.clar-board__count { font-weight: 500; opacity: .75; margin-left: .15rem; }
+.clar-board__write { border-radius: 6px; background: var(--kaupc-blue); color: #fff !important; font-size: .88rem; font-weight: 700; padding: .5rem 1.1rem; text-decoration: none !important; }
+.clar-board__write:hover { background: var(--kaupc-blue-dark); }
+.clar-board__table { width: 100%; border-collapse: collapse; border-top: 2px solid var(--kaupc-blue); color: var(--kaupc-ink); table-layout: fixed; }
+.clar-board__table th { border-bottom: 1px solid var(--kaupc-line); background: #f6f8fb; color: var(--kaupc-muted); font-size: .8rem; font-weight: 700; padding: .65rem .75rem; text-align: center; }
+.clar-board__table th:nth-child(1) { width: 4.5rem; }
+.clar-board__table th:nth-child(2) { width: 6.5rem; }
+.clar-board__table th:nth-child(3) { width: 5rem; }
+.clar-board__table th:nth-child(5) { width: 7rem; }
+.clar-board__table th:nth-child(4) { text-align: left; }
+.clar-board__table td { border-bottom: 1px solid var(--kaupc-line); padding: .8rem .75rem; font-size: .92rem; text-align: center; vertical-align: middle; }
+.clar-row { cursor: pointer; }
+.clar-row:hover td { background: #f6f9fe; }
+.clar-row__num, .clar-row__time { color: var(--kaupc-muted); font-size: .85rem !important; font-variant-numeric: tabular-nums; }
+.clar-row__subject { color: var(--kaupc-blue); font-weight: 800; }
+.clar-row__subject--general { color: var(--kaupc-muted); font-weight: 600; font-size: .85rem !important; }
+td.clar-row__title { text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.clar-row__title a { color: var(--kaupc-ink); text-decoration: none; }
+.clar-row:hover .clar-row__title a { color: var(--kaupc-blue); text-decoration: underline; }
+.clar-row.unseen .clar-row__title a { font-weight: 800; }
+.clar-row__new { display: inline-block; margin-left: .45rem; border-radius: 4px; background: #d93025; color: #fff; font-size: .68rem; font-weight: 800; line-height: 1; padding: .2rem .3rem; vertical-align: .1em; }
+.clar-kind { display: inline-block; min-width: 3.6rem; border-radius: 4px; font-size: .76rem; font-weight: 700; padding: .2rem .5rem; }
+.clar-kind--notice { background: var(--kaupc-blue); color: #fff; }
+.clar-kind--answer { background: #e3f1e7; color: #17693a; }
+.clar-kind--mine { background: #eef1f5; color: #4b5563; }
+@media (max-width: 680px) { .clar-board__table th:nth-child(1), .clar-board__table td:nth-child(1), .clar-board__table th:nth-child(3), .clar-board__table td:nth-child(3) { display: none; } }
+
+.problem-statement { max-width: 900px; margin: 0 auto; padding: clamp(1.75rem, 5vw, 4.25rem); color: var(--kaupc-ink); font-size: 1rem; line-height: 1.8; }
+.problem-header { padding-bottom: 1.7rem; border-bottom: 1px solid var(--kaupc-line); margin-bottom: 2.25rem; }
+.problem-eyebrow { color: var(--kaupc-blue); font-size: .78rem; font-weight: 800; letter-spacing: .08em; margin: 0 0 .5rem; }
+.problem-statement h1 { font-size: clamp(2rem, 4vw, 2.7rem); font-weight: 750; letter-spacing: -.045em; line-height: 1.2; margin: 0 0 1.5rem; }
+.problem-statement h2 { border-bottom: 2px solid var(--kaupc-blue); color: #3e4650; font-size: 1.28rem; font-weight: 750; letter-spacing: -.03em; margin: 2.65rem 0 1.15rem; padding-bottom: .45rem; }
+.problem-statement p { margin: .7rem 0; }
+.problem-statement ol, .problem-statement ul { padding-left: 1.5rem; }
+.problem-statement code { border-radius: 4px; background: #f1f4f7; color: #26313b; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9em; padding: .1rem .3rem; }
+.problem-statement img, .contest-statement img { display: block; max-width: 100%; height: auto; margin: 1rem auto; }
+.problem-limits { display: grid; grid-template-columns: repeat(2, minmax(0, 180px)); gap: 0; margin: 0; border-top: 1px solid var(--kaupc-line); border-bottom: 1px solid var(--kaupc-line); }
+.problem-limits div { padding: .65rem .8rem; border-right: 1px solid var(--kaupc-line); }
+.problem-limits div:last-child { border-right: 0; }
+.problem-limits dt { color: var(--kaupc-muted); font-size: .75rem; font-weight: 700; }
+.problem-limits dd { margin: .12rem 0 0; font-size: .95rem; font-weight: 700; }
+.sample-card { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.sample-pane { min-width: 0; }
+.sample-label { color: #4e5660; font-size: .92rem; font-weight: 700; margin-bottom: .5rem; }
+.sample-pane pre { min-height: 130px; overflow: auto; margin: 0; padding: 1rem; border: 1px solid var(--kaupc-line); background: var(--kaupc-code); color: #29323c; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .88rem; line-height: 1.55; }
+@media (max-width: 680px) { .sample-card { grid-template-columns: 1fr; } .problem-limits { grid-template-columns: 1fr; } .problem-limits div { border-right: 0; border-bottom: 1px solid var(--kaupc-line); } .problem-limits div:last-child { border-bottom: 0; } .problem-table th:nth-child(3), .problem-table td:nth-child(3) { display: none; } }
+
+/* 참가자 대회 내부 화면의 공통 셸 */
+body.participant-portal .contest-tabs,
+body.participant-portal .contest-page-title,
+body.participant-portal .contest-shell,
+body.participant-portal .teamoverview,
+body.participant-portal .submissions-table {
+  width: var(--kaupc-page-width);
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+body.participant-portal .contest-tabs { margin-top: 1.5rem; padding: 0; }
+body.participant-portal .contest-availability { padding: clamp(1.25rem, 4vw, 2.5rem); }
+.contest-availability h2 { margin: 0 0 1rem; font-size: clamp(1.3rem, 3vw, 1.75rem); color: var(--kaupc-ink); }
+.contest-availability p { line-height: 1.7; }
+body.participant-portal #lastmod { box-sizing: border-box; width: var(--kaupc-page-width); margin: 1.5rem auto 0; padding: 1rem 0 0; border-top: 1px solid var(--kaupc-line); color: var(--kaupc-muted); font-size: .8rem; line-height: 1.7; text-align: right; }
+body.participant-portal .contest-shell #lastmod { position: static; inset: auto; width: 100%; }
+body.participant-portal #lastmod a { color: inherit; }
+body.participant-portal .contest-page-title { margin: 1.8rem auto 1rem; text-align: center; color: var(--kaupc-ink); font-size: clamp(1.7rem, 4vw, 2.15rem); font-weight: 750; letter-spacing: -.035em; }
+body.participant-portal .contest-shell { box-sizing: border-box; margin-top: 0; margin-bottom: 3rem; padding: 1.5rem; border: 1px solid var(--kaupc-line); border-radius: 10px; background: var(--kaupc-panel); }
+body.participant-portal .problem-app { padding: 0; overflow: hidden; }
+body.participant-portal .problem-table { width: 100%; margin: 0; }
+body.participant-portal .submitform > :not(.submission-history) { max-width: 560px; }
+body.participant-portal .submitform h1 { display: none; }
+body.participant-portal .card-header { padding-left: 0; padding-right: 0; }
+body.participant-portal .contest-clarifications .teamoverview { width: auto; margin: 0 0 1rem; }
+body.participant-portal .contest-clarifications__empty { margin: 0; padding: 1.25rem; border: 1px dashed var(--kaupc-line); border-radius: 8px; background: #fafbfd; text-align: center; }
+body.participant-portal .submission-history { max-width: none; margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--kaupc-line); }
+body.participant-portal .contest-statement, body.participant-portal .problem-statement { max-width: none; margin: 0; }
+body.participant-portal .problem-statement { padding: 1.5rem 1.5rem 2rem; }
+/* 순위표 상자: DOMjudge가 새로고침하는 틀 자체다. 문제가 많으면 상자 안에서 가로로 스크롤한다. */
+body.participant-portal .scoreboard-shell { overflow-x: auto; }
+body.participant-portal .scoreboard-shell > .card { display: none; }
+body.participant-portal .scoreboard-shell > .alert { margin: 0 0 1rem; padding: .75rem 1rem; border: 1px solid #dbe7f8; border-radius: 8px; background: #f6f9fe; color: var(--kaupc-muted); font-size: .88rem !important; }
+body.participant-portal .scoreboard-shell > .dropdown { margin-bottom: .75rem; }
+body.participant-portal .submission-detail__facts { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .5rem; margin: 0 0 .75rem; }
+body.participant-portal .submission-detail__facts .p-2 { padding: .75rem !important; border: 1px solid var(--kaupc-line); border-radius: 8px; }
+body.participant-portal .submission-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, max-content)); gap: .15rem 1rem; margin: 0 0 1rem; }
+body.participant-portal .submission-metrics dt { color: var(--kaupc-muted); font-size: .8rem; }
+body.participant-portal .submission-metrics dd { margin: 0; font-weight: 700; }
+
+/* 제출한 코드 */
+.submission-code { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--kaupc-line); }
+.submission-code__head { position: relative; display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+.submission-code__head h6 { margin: 0; color: var(--kaupc-ink); font-size: .95rem; font-weight: 750; }
+.submission-code__name { color: var(--kaupc-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8rem; }
+.submission-code__head .submission-code__copy { position: static; margin-left: auto; }
+.submission-code__source { max-height: 60vh; overflow: auto; margin: 0; padding: 1rem; border: 1px solid var(--kaupc-line); border-radius: 6px; background: var(--kaupc-code); color: #29323c; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85rem; line-height: 1.55; tab-size: 4; white-space: pre; }
+.submission-code__note { margin: 0; color: var(--kaupc-muted); font-size: .88rem; }
+
+/* 로그인: DOMjudge 로고·버전 대신 KAUPC 2026으로 보인다. CSS로 처리해 로딩 중에도 DOMjudge가 비치지 않는다. */
+body:has(#loginform) { min-height: 100vh; background: linear-gradient(160deg, var(--kaupc-blue-dark) 0%, var(--kaupc-blue) 100%) !important; }
+#loginform { box-sizing: border-box; width: min(380px, calc(100vw - 2rem)); padding: 2.4rem 2.1rem 2rem; border-radius: 14px; background: #fff; box-shadow: 0 24px 60px rgba(4, 14, 32, .35); color: var(--kaupc-ink); }
+#loginform > img, #dj_version { display: none !important; }
+#loginform::before { content: "KAUPC 2026"; display: block; color: var(--kaupc-blue); font-size: 2rem; font-weight: 800; letter-spacing: -.035em; line-height: 1.1; }
+#loginform .main-login { margin: 0 !important; }
+#loginform .main-login h1 { margin: .35rem 0 1.6rem !important; text-align: center; color: var(--kaupc-muted); font-size: .95rem !important; font-weight: 600 !important; }
+#loginform .form-floating > .form-control { border-color: var(--kaupc-line); }
+#loginform .form-floating > .form-control:focus { border-color: var(--kaupc-blue); box-shadow: 0 0 0 .2rem rgba(15, 44, 92, .15); }
+#loginform .btn-primary { margin-top: .6rem; border: 0; border-radius: 8px; background: var(--kaupc-blue); font-size: 1rem; font-weight: 700; padding: .7rem; }
+#loginform .btn-primary:hover, #loginform .btn-primary:focus { background: var(--kaupc-blue-dark); }
+
+body:is(:has(.contest-tabs), .kaupc-results-mode) table.desktop-scoreboard .score-cell__tries:empty { display: none; }
+/* 순위표 필터(분류·소속 선택)는 참가자 화면에 필요 없다. */
+body:has(.contest-tabs) .scoreboard-shell .dropdown:has(> #filter-toggle) { display: none; }
+
+/* 채점 현황: 공개 대회의 모든 제출 */
+.contest-status__note { margin: 0 0 .8rem; color: var(--kaupc-muted); font-size: .85rem; }
+.contest-status__table { width: 100%; margin: 0; border-collapse: collapse; font-size: .9rem; }
+.contest-status__table th, .contest-status__table td { padding: .5rem .75rem; border-bottom: 1px solid var(--kaupc-line); text-align: left; }
+.contest-status__table th { color: var(--kaupc-muted); font-weight: 600; white-space: nowrap; }
+.contest-status__table td { white-space: nowrap; }
+.contest-status__empty { padding: 1.5rem !important; color: var(--kaupc-muted); text-align: center; }
+.contest-status__verdict { font-weight: 700; }
+.contest-status__table td.contest-status__verdict--correct { color: #087443; }
+.contest-status__table td.contest-status__verdict--wrong { color: #b42318; }
+.contest-status__table td.contest-status__verdict--compile { color: #9a6700; }
+.contest-status__table td.contest-status__verdict--pending { color: var(--kaupc-muted); }
+.contest-status__table td.contest-status__cases { min-width: 150px; max-width: 280px; white-space: normal; line-height: 1; }
+.contest-status__case { display: inline-block; width: 1.15rem; height: 1.15rem; margin: 1px; border-radius: 3px; color: #fff; font-size: .7rem; font-weight: 700; line-height: 1.15rem; text-align: center; }
+.contest-status__case--correct { background: #087443; }
+.contest-status__case--wrong, .contest-status__case--compile { background: #b42318; }
+.contest-status__case--pending { background: #c4cad3; }
+.contest-status__open { color: var(--kaupc-blue); font-weight: 700; }
+.contest-status__table tbody tr:has(.contest-status__open) { cursor: pointer; }
+.contest-status__table tbody tr:has(.contest-status__open):hover > td { background: #edf4ff; }
+.contest-status__back { margin: 0 0 .5rem; font-size: .9rem; }
+.contest-status__meta { display: flex; flex-wrap: wrap; gap: .65rem 1.5rem; margin: 1rem 0; font-size: .9rem; }
+.contest-status .jury-code-first { margin: 1.2rem 0 2rem; }
+.contest-status .jury-code-first h2 { font-size: 1.35rem; }
+.contest-status .jury-code-first h3 { font-size: .95rem; margin-top: 1rem; }
+.contest-status .jury-code-first pre { max-height: 55vh; overflow: auto; padding: 1rem; background: #f6f8fa; border: 1px solid var(--kaupc-line); border-radius: 6px; font: .88rem/1.6 ui-monospace,Consolas,monospace; tab-size: 4; }
+.contest-status .jury-live-results { border-top: 1px solid var(--kaupc-line); padding-top: 1rem; margin-top: 1rem; }
+.contest-status .jury-case-results { display: flex; flex-wrap: wrap; gap: .4rem; margin: .75rem 0; }
+.contest-status .jury-case-results .badge { font-size: .8rem; padding: .5rem; }
+.contest-status__diagnostics summary { cursor: pointer; font-weight: 700; margin-bottom: .5rem; }
+.contest-status__meta .contest-status__verdict--correct { color: #087443; }
+.contest-status__meta .contest-status__verdict--wrong { color: #b42318; }
+.contest-status__meta .contest-status__verdict--compile { color: #9a6700; }
+.contest-status__meta .contest-status__verdict--pending { color: var(--kaupc-muted); }
+.contest-status__compile pre, .contest-status__run-panel pre { max-height: 24rem; overflow: auto; margin: 0 0 .75rem; padding: .75rem; background: #f6f8fa; border: 1px solid var(--kaupc-line); border-radius: 6px; font: .82rem/1.5 ui-monospace,Consolas,monospace; }
+.contest-status__run-panel { margin-bottom: .5rem; padding: .6rem .75rem; border: 1px solid var(--kaupc-line); border-radius: 6px; }
+.contest-status__run-panel summary { cursor: pointer; font-weight: 700; }
+.contest-status__run-panel summary.contest-status__verdict--correct { color: #087443; }
+.contest-status__run-panel summary.contest-status__verdict--wrong { color: #b42318; }
+.contest-status__run-panel h4 { display: flex; justify-content: space-between; margin: .9rem 0 .35rem; font-size: .85rem; font-weight: 700; }
+.contest-status__run-panel h4 a { font-weight: 400; }
+.contest-status__cut { margin: -.4rem 0 .75rem; color: var(--kaupc-muted); font-size: .8rem; }

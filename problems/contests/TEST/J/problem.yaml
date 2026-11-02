@@ -1,0 +1,5 @@
+name: 배달왕 피트
+limits:
+  time_limit: 1
+  memory: 256
+validation: default

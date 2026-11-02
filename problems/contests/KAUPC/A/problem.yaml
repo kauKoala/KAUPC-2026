@@ -1,0 +1,5 @@
+name: 현수막 출력하기
+limits:
+  time_limit: 1
+  memory: 512
+validation: custom

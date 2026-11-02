@@ -1,0 +1,4 @@
+secret/2 (시드 2)
+secret/6 (시드 6)
+secret/7 (시드 7)
+secret/8 (시드 9)

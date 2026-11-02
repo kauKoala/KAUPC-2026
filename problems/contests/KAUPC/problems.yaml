@@ -1,0 +1,55 @@
+- id: wavingbanner
+  label: A
+  name: 현수막 출력하기
+  color: SteelBlue
+  rgb: '#4682B4'
+- id: kaupc001
+  label: B
+  name: 트리플(Triple)
+  color: Crimson
+  rgb: '#DC143C'
+- id: testdelivery1
+  label: C
+  name: 배달왕 피트
+  color: DarkOrange
+  rgb: '#FF8C00'
+- id: kaupc002
+  label: D
+  name: 특종은 안전하게
+  color: Teal
+  rgb: '#008080'
+- id: kaupcfairopponent
+  label: E
+  name: 적절한 상대 찾기
+  color: Gold
+  rgb: '#FFD700'
+- id: dessert1
+  label: F
+  name: 간식(easy)
+  color: LimeGreen
+  rgb: '#32CD32'
+- id: botmaintenance
+  label: G
+  name: 디스코드 봇 유지보수
+  color: DodgerBlue
+  rgb: '#1E90FF'
+- id: delivery2
+  label: H
+  name: 사장님 피트
+  color: DarkViolet
+  rgb: '#9400D3'
+- id: addingbridges
+  label: I
+  name: 다리 추가하기
+  color: Navy
+  rgb: '#000080'
+- id: taxidriver
+  label: J
+  name: 택시 기사 마하
+  color: HotPink
+  rgb: '#FF69B4'
+- id: dessert2
+  label: K
+  name: 간식(hard)
+  color: SaddleBrown
+  rgb: '#8B4513'

@@ -1,0 +1,110 @@
+{
+	email admin@example.com
+}
+
+# HTTPS. 인증서는 Caddy가 Let's Encrypt에서 자동으로 받고 갱신한다.
+https://kaupc2026.me, https://www.kaupc2026.me {
+	# 게스트로 들어와 있으면 DOMjudge가 로그인 화면 대신 첫 화면으로 보낸다. 운영진과 KAUPC 계정의 로그인 화면은 세션 없이 연다.
+	@account_login {
+		method GET
+		path /login
+		query account=1
+		not query failed=1
+	}
+	request_header @account_login -Cookie
+
+	# 로그인에 실패해도 게스트로 빠지지 않고 오류 문구가 있는 로그인 화면에 남는다.
+	@account_login_submit {
+		method POST
+		path /login
+	}
+	handle @account_login_submit {
+		reverse_proxy domserver:80 {
+			header_down Location "^(https?://[^/]+)?/login$" "/login?account=1&failed=1"
+		}
+	}
+
+	# 운영자 화면은 권한을 요구한다. 로그인 안 했거나 권한이 없으면(게스트 포함) 계정 로그인 화면으로 보낸다.
+	@jury path /jury /jury/*
+	handle @jury {
+		reverse_proxy domserver:80 {
+			header_down Location "^(https?://[^/]+)?/login$" "/login?account=1"
+			@denied status 403
+			handle_response @denied {
+				redir * /login?account=1 temporary
+			}
+		}
+	}
+
+	# 지문 주소로 직접 들어오면 문제 목록의 지문 보기로 보낸다.
+	# 문제 목록 화면이 지문을 가져오는 요청(X-Kaupc-Fetch 헤더)은 그대로 통과시킨다.
+	@contest_statement {
+		path_regexp contest_statement ^/contest/problems/([^/]+)/statement$
+		not header X-Kaupc-Fetch statement
+	}
+	redir @contest_statement /contest/problems?statement={re.contest_statement.1} temporary
+
+	@contest_clarifications path /contest/clarifications
+	handle @contest_clarifications {
+		uri replace /contest/clarifications /team
+		reverse_proxy domserver:80 {
+			header_down Location "^/team$" "/contest/clarifications"
+			header_down Location "^/team/(.*)$" "/contest/$1"
+		}
+	}
+
+	# 채점 현황 탭. 질의응답처럼 참가자 첫 화면을 빌려 그 위에 모든 제출 목록을 그린다.
+	@contest_status path /contest/status
+	handle @contest_status {
+		uri replace /contest/status /team
+		reverse_proxy domserver:80 {
+			header_down Location "^/team$" "/contest/status"
+			header_down Location "^/team/(.*)$" "/contest/$1"
+		}
+	}
+
+	# 채점 현황의 제출 상세. 같은 방식으로 참가자 첫 화면을 빌린다.
+	@contest_status_detail path_regexp ^/contest/status/[0-9]+$
+	handle @contest_status_detail {
+		rewrite * /team
+		reverse_proxy domserver:80 {
+			header_down Location "^/team$" "/contest/status"
+			header_down Location "^/team/(.*)$" "/contest/$1"
+		}
+	}
+
+	@contest_root path /contest
+	handle @contest_root {
+		uri replace /contest /team
+		reverse_proxy domserver:80 {
+			header_down Location "^/team$" "/contest"
+			header_down Location "^/team/(.*)$" "/contest/$1"
+		}
+	}
+
+	@contest_path path /contest/*
+	handle @contest_path {
+		uri replace /contest /team
+		reverse_proxy domserver:80 {
+			header_down Location "^/team$" "/contest"
+			header_down Location "^/team/(.*)$" "/contest/$1"
+		}
+	}
+
+	@legacy_team_root path /team
+	redir @legacy_team_root /contest permanent
+	@legacy_team_path path_regexp legacy_team ^/team/(.*)$
+	redir @legacy_team_path /contest/{re.legacy_team.1} permanent
+
+	reverse_proxy domserver:80
+}
+
+# 도메인으로 들어온 HTTP 접속은 HTTPS로 보낸다.
+http://kaupc2026.me, http://www.kaupc2026.me {
+	redir https://{host}{uri} permanent
+}
+
+# IP로 들어오는 접속(도메인 없이)
+:80 {
+	reverse_proxy domserver:80
+}

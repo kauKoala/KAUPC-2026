@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+answer="$2"
+feedback="$3"
+actual="$(mktemp)"
+trap 'rm -f "$actual"' EXIT
+cat > "$actual"
+if [ -s "$actual" ] && [ "$(tail -c 1 "$actual" | od -An -t x1 | tr -d '[:space:]')" != "0a" ]; then
+  printf '\n' >> "$actual"
+fi
+if cmp -s "$answer" "$actual"; then
+  exit 42
+fi
+printf '%s\n' '문자와 마침표의 모든 위치가 정답과 같아야 합니다.' > "$feedback/judgemessage.txt"
+exit 43

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "participants",
+    "name": "Participants",
+    "hidden": false
+  },
+  {
+    "id": "pending",
+    "name": "Participants without a name",
+    "hidden": true
+  },
+  {
+    "id": "staff",
+    "name": "Staff test accounts",
+    "hidden": true
+  },
+  {
+    "id": "guests",
+    "name": "Guests",
+    "hidden": false
+  },
+  {
+    "id": "guest-pending",
+    "name": "Guests without a name",
+    "hidden": true
+  }
+]

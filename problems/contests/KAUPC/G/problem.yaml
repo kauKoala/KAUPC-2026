@@ -1,0 +1,5 @@
+name: 디스코드 봇 유지보수
+limits:
+  time_limit: 2
+  memory: 512
+validation: default

@@ -1,0 +1,5 @@
+name: 택시 기사 마하
+limits:
+  time_limit: 1
+  memory: 512
+validation: default

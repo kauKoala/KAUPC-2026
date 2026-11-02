@@ -1,0 +1,33 @@
+name: dry-run
+
+# 운영 서버에서 5분짜리 리허설 대회를 돌린다. 손으로 실행할 때만 돈다.
+# 네 팀 동시 제출, 판정, 순위표를 확인하고 끝나면 대회를 끈다.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SSH 키 준비
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: 리허설 대회 실행
+        run: |
+          scp -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+            deploy/aws/dry_run.sh \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dry_run.sh"
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o ServerAliveInterval=30 \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "bash dry_run.sh"

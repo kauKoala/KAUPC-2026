@@ -1,0 +1,66 @@
+name: server
+
+# 운영 EC2를 켜고 끈다. Actions 탭에서 손으로 돌린다.
+#
+# IP는 Elastic IP라 껐다 켜도 바뀌지 않는다. 컨테이너는 restart: unless-stopped라
+# 부팅하면 도커가 스택을 다시 올린다. AWS 권한은 OIDC로 받는 <AWS_ROLE_NAME> 역할이고,
+# 이 인스턴스의 시작·중지만 할 수 있다.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 켤지 끌지
+        type: choice
+        options: ["on", "off"]
+        required: true
+
+# 배포 중에 서버가 꺼지지 않게 배포와 같은 줄에 선다.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-2
+  INSTANCE_ID: <EC2_INSTANCE_ID>
+  SITE_URL: https://kaupc2026.me
+
+jobs:
+  power:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<AWS_ACCOUNT_ID>:role/<AWS_ROLE_NAME>
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 서버 켜기
+        if: inputs.action == 'on'
+        run: |
+          aws ec2 start-instances --instance-ids "$INSTANCE_ID" --output text
+          aws ec2 wait instance-running --instance-ids "$INSTANCE_ID"
+          echo "인스턴스가 떴다. 사이트가 응답할 때까지 기다린다"
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$SITE_URL/api/v4/contests" || true)
+            echo "  $i: $code"
+            if [ "$code" = 200 ]; then exit 0; fi
+            sleep 5
+          done
+          echo "5분 동안 사이트가 응답하지 않았다"
+          exit 1
+
+      - name: 서버 끄기
+        if: inputs.action == 'off'
+        run: |
+          aws ec2 stop-instances --instance-ids "$INSTANCE_ID" --output text
+          aws ec2 wait instance-stopped --instance-ids "$INSTANCE_ID"
+
+      - name: 상태
+        if: always()
+        run: |
+          aws ec2 describe-instances --instance-ids "$INSTANCE_ID" \
+            --query 'Reservations[0].Instances[0].[State.Name,PublicIpAddress]' --output text
